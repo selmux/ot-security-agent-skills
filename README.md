@@ -4,106 +4,129 @@
 
 A collection of reusable AI Agent Skills designed to support industrial cybersecurity investigations, network forensics, incident response, operational impact analysis, and security research.
 
-The project combines **AI-assisted investigation, industrial protocol expertise, and practical Python forensic tools** to help researchers, OT engineers, security analysts, and incident responders analyze industrial environments more effectively.
+The project combines **AI-assisted investigation, industrial protocol expertise, and practical Python forensic tools** to help researchers, OT engineers, security analysts, and incident responders investigate industrial environments more effectively.
 
-Each skill can operate independently using its Python command-line tools or serve as a specialized capability within a compatible AI agent environment.
+Each skill can operate independently using Python command-line tools or serve as a specialized capability within a compatible AI agent environment.
 
-> **Project Status:** Experimental — Version 0.1.x. The tools are intended for authorized, passive, offline forensic investigations. Findings require independent validation.
+> **Project Status:** Experimental — v0.1.x. Intended for authorized, passive, offline forensic investigations. Findings require independent verification.
 
 ## Objectives
 
 - Develop reusable, modular Agent Skills for ICS/OT cybersecurity investigations.
 - Automate repetitive forensic analysis and evidence extraction.
-- Support industrial protocol analysis, including Modbus TCP, BACnet/IP, Siemens S7comm, and IEC 60870-5-104.
-- Identify potentially suspicious commands, unauthorized control operations, and security-relevant communications.
-- Interpret potential operational consequences without assuming successful command execution.
-- Normalize forensic evidence into consistent formats for downstream analysis.
-- Support chronological reconstruction of IT-to-OT attack sequences.
-- Promote reproducible, transparent, and evidence-based cybersecurity research.
+- Support Modbus TCP, BACnet/IP, Siemens S7comm, and IEC 60870-5-104 analysis.
+- Identify potentially suspicious commands and state-changing operations.
+- Preserve protocol-specific evidence during normalization.
+- Interpret potential operational consequences without assuming successful execution.
+- Correlate security observations into chronological IT-to-OT investigation timelines.
+- Promote transparent, reproducible, and evidence-based research.
 
 ## Available Agent Skills
 
-The current collection includes **eight specialized skills**.
+The collection currently includes **eight specialized skills**.
 
-| Skill | Description |
-|---|---|
-| **[Modbus Forensics](skills/modbus-forensics/)** | Analyzes Modbus TCP communications, register and coil operations, and potentially unauthorized PLC commands. |
-| **[BACnet Forensics](skills/bacnet-forensics/)** | Investigates BACnet/IP communications, building automation controllers, and potentially state-changing operations. |
-| **[Siemens S7 Forensics](skills/siemens-s7-forensics/)** | Analyzes S7comm traffic, PLC memory access, CPU-related operations, and potentially unauthorized changes. |
-| **[IEC-104 Forensics](skills/iec104-forensics/)** | Investigates IEC 60870-5-104 communications, ASDUs, information object addresses, and industrial control commands. |
-| **[OT Application Forensics](skills/ot-application-forensics/)** | Performs static analysis of Node-RED, Grafana, InfluxDB, and MariaDB exported artifacts. |
-| **[OT Evidence Normalizer](skills/ot-evidence-normalizer/)** | Converts supported forensic JSON reports into structured evidence for process analysis and attack-chain reconstruction. |
-| **[OT Process Analysis](skills/ot-process-analysis/)** | Interprets structured industrial control observations and identifies possible operational consequences. |
-| **[Attack Chain Reconstruction](skills/attack-chain-reconstruction/)** | Correlates structured forensic evidence into chronological IT-to-OT investigation timelines. |
+| Skill | Description | Version |
+|---|---|---|
+| **[Modbus Forensics](skills/modbus-forensics/)** | Analyze Modbus TCP communications, register operations, coil writes, and potentially state-changing commands. | v0.1 |
+| **[BACnet Forensics](skills/bacnet-forensics/)** | Investigate BACnet/IP communications, building controllers, and control operations. | v0.1 |
+| **[Siemens S7 Forensics](skills/siemens-s7-forensics/)** | Examine S7comm traffic, PLC data access, CPU commands, and program operations. | v0.1.0 |
+| **[IEC-104 Forensics](skills/iec104-forensics/)** | Analyze SCADA communications, ASDUs, IOAs, and control commands. | v0.1.0 |
+| **[OT Application Forensics](skills/ot-application-forensics/)** | Analyze Node-RED, Grafana, InfluxDB, and MariaDB exported artifacts. | v0.1.0 |
+| **[OT Evidence Normalizer](skills/ot-evidence-normalizer/)** | Normalize forensic findings while preserving protocol operation semantics and evidence references. | v0.1.1 |
+| **[OT Process Analysis](skills/ot-process-analysis/)** | Interpret industrial control observations, including controller mode changes and program transfers. | v0.1.1 |
+| **[Attack Chain Reconstruction](skills/attack-chain-reconstruction/)** | Correlate structured evidence into chronological IT-to-OT incident timelines. | v0.1 |
 
-Each skill is documented independently and includes its own capabilities, usage instructions, and limitations.
+Each skill includes its own documentation, Python tools, and automated tests.
 
 ## How the Skills Work Together
 
 The collection follows an **evidence-first forensic workflow**.
 
 ```text
-              Industrial Security Evidence
-                           |
-          +----------------+----------------+
-          |                                 |
-     Network Captures               Application Exports
-      PCAP / PCAPNG                JSON / SQL / Text
-          |                                 |
-          v                                 v
-   Protocol Forensic Skills        OT Application Forensics
-   - Modbus Forensics                       |
-   - BACnet Forensics                       |
-   - Siemens S7 Forensics                   |
-   - IEC-104 Forensics                      |
-          |                                 |
-          +----------------+----------------+
-                           |
-                           v
-                 Structured JSON Findings
-                           |
-                           v
-                  OT Evidence Normalizer
-                           |
-             +-------------+-------------+
-             |                           |
-             v                           v
-      OT Process Analysis       Attack Chain Reconstruction
-             |                           |
-             +-------------+-------------+
-                           |
-                           v
-                  Forensic Investigation
-                   and Analyst Review
+             Industrial Security Evidence
+                         |
+          +--------------+--------------+
+          |                             |
+     Network Captures           Application Exports
+      PCAP / PCAPNG              JSON / SQL / Text
+          |                             |
+          v                             v
+   Protocol Forensics          OT Application Forensics
+   - Modbus                            |
+   - BACnet                            |
+   - Siemens S7                        |
+   - IEC-104                           |
+          |                             |
+          +--------------+--------------+
+                         |
+                         v
+                Structured JSON Findings
+                         |
+                         v
+                OT Evidence Normalizer
+                         |
+              +----------+----------+
+              |                     |
+              v                     v
+       OT Process Analysis    Attack Chain
+                              Reconstruction
+              |                     |
+              +----------+----------+
+                         |
+                         v
+               Evidence-Based Findings
+                   Analyst Review
 ```
 
-**Current integration status:** The evidence normalizer supports defined JSON input mappings. Not every analyzer's output is automatically converted in all cases, and some sources may require additional transformation or analyst preparation.
+### Evidence Normalization and Semantic Preservation
 
-The project does not yet include a production-ready autonomous orchestration engine for the entire workflow.
+Beginning with **OT Evidence Normalizer v0.1.1**, supported Siemens S7 operations retain their specific meanings rather than being grouped under a generic state-change category.
+
+| Siemens S7 operation | Normalized classification |
+|---|---|
+| PLC Stop | `controller_mode_change` |
+| Write Var | `variable_write` |
+| Request Download | `program_transfer` |
+| Download Block | `program_transfer` |
+| Download Ended | `program_transfer` |
+| Unknown operation | `other`, with original details retained where available |
+
+**OT Process Analysis v0.1.1** recognizes the new classifications and produces conditional operational risk descriptions.
+
+For example, an observed PLC STOP request may indicate a potential interruption of controller logic execution **if the command is accepted and applied**.
+
+The toolkit does not treat an observed request as proof of successful execution or physical impact.
+
+These improvements were validated through automated tests and a targeted S7-to-normalizer-to-process-analysis integration test.
 
 ## How Each Agent Skill Works
 
 Each skill generally contains:
 
 - **`SKILL.md`** — Instructions describing when and how a compatible AI agent should use the skill.
-- **`README.md`** — Human-facing documentation for installation, usage, supported inputs, and limitations.
-- **`scripts/`** — Python command-line tools for forensic analysis.
-- **`references/`** — Technical references, schemas, and investigation guidance where applicable.
-- **`tests/`** — Automated tests for supported functionality.
-- **`examples/`** — Sample inputs where provided.
+- **`README.md`** — Human-facing installation, usage, and limitations documentation.
+- **`scripts/`** — Reusable Python forensic analysis tools.
+- **`references/`** — Protocol references, evidence schemas, and investigation guidance.
+- **`tests/`** — Automated tests.
+- **`examples/`** — Sample evidence where provided.
 
-The skills support two usage approaches:
+### Two Usage Modes
 
-**Manual analysis:** Researchers execute the Python tools directly against authorized evidence.
+**Manual Analysis**
 
-**AI-assisted analysis:** Compatible AI agents use the instructions in `SKILL.md` to determine when to invoke the appropriate analysis tools.
+Security researchers can run the Python tools independently.
 
-Automatic skill discovery depends on the agent platform and its configuration.
+**AI-Assisted Analysis**
+
+Compatible AI agents can use `SKILL.md` instructions to identify relevant capabilities, invoke analysis scripts, and interpret structured findings.
+
+Automatic skill discovery depends on the agent platform and configuration. Full autonomous orchestration is not included in the current public release.
 
 ## Project Structure
 
 ```text
 ot-security-agent-skills/
+├── LICENSE
 ├── README.md
 └── skills/
     ├── attack-chain-reconstruction/
@@ -118,33 +141,35 @@ ot-security-agent-skills/
 
 ## Requirements
 
-The current tools are implemented using:
+- Python 3.9 or later.
+- Python standard library.
+- Local forensic evidence files.
+- Windows 11, Linux, or macOS.
 
-- **Python 3.9 or later**
-- Python standard library
-- Local files containing authorized forensic evidence
+No additional Python packages are required for the included analyzers.
 
-No third-party Python packages are required by the current bundled analyzers.
-
-The tools are designed for cross-platform use on Windows 11, Linux, and macOS. Compatibility should be verified in the intended environment.
-
-Wireshark or TShark is recommended for independent packet-level validation, particularly for fragmented or unsupported protocol traffic.
+Wireshark or TShark is recommended for independent verification of complex network captures, especially when TCP segmentation or unsupported protocol features are involved.
 
 ## Installation
 
-Clone the repository containing this project, or download the relevant skill folders from GitHub.
+Clone the standalone repository:
+
+```bash
+git clone https://github.com/selmux/ot-security-agent-skills.git
+cd ot-security-agent-skills
+```
+
+Alternatively, select **Code → Download ZIP** on GitHub.
 
 ### Windows 11 — PowerShell
 
-From the root of the cloned repository:
+Check Python:
 
 ```powershell
-cd .\ot-security-agent-skills
-
 python --version
 ```
 
-To run the Modbus Forensics tests:
+Run the Modbus Forensics tests:
 
 ```powershell
 cd .\skills\modbus-forensics
@@ -153,26 +178,20 @@ python -m unittest discover -s tests -v
 
 ### Linux — Bash
 
-From the root of the cloned repository:
-
 ```bash
-cd ./ot-security-agent-skills
-
 python3 --version
-```
 
-Run the Modbus Forensics tests:
-
-```bash
 cd ./skills/modbus-forensics
 python3 -m unittest discover -s tests -v
 ```
 
-Each skill's README provides additional examples, input requirements, and command-line instructions.
+Each skill's README contains additional commands and usage examples.
 
 ## Usage Examples
 
-### 1. Analyze Modbus TCP Traffic
+The following examples assume commands are run from the relevant skill directory.
+
+### 1. Analyze Modbus Traffic
 
 Windows:
 
@@ -186,49 +205,43 @@ Linux:
 python3 scripts/analyze_modbus.py ~/captures/modbus.pcap --output modbus-report.json
 ```
 
-Run these commands from the `modbus-forensics` directory.
-
-### 2. Analyze BACnet/IP Traffic
+### 2. Analyze Siemens S7 Traffic
 
 Windows:
 
 ```powershell
-python scripts\analyze_bacnet.py "C:\captures\building-network.pcap" --output bacnet-report.json
+python scripts\analyze_s7.py "C:\captures\s7-traffic.pcap" --output s7-report.json
 ```
 
 Linux:
 
 ```bash
-python3 scripts/analyze_bacnet.py ~/captures/building-network.pcap --output bacnet-report.json
+python3 scripts/analyze_s7.py ~/captures/s7-traffic.pcap --output s7-report.json
 ```
-
-Run these commands from the `bacnet-forensics` directory.
 
 ### 3. Normalize Forensic Evidence
 
-The OT Evidence Normalizer accepts supported structured JSON forensic reports.
+From the `ot-evidence-normalizer` directory:
 
 Windows:
 
 ```powershell
-python scripts\normalize_evidence.py "C:\reports\modbus.json" "C:\reports\bacnet.json" --output-dir "C:\reports\normalized"
+python scripts\normalize_evidence.py "C:\reports\modbus.json" "C:\reports\s7.json" --output-dir "C:\reports\normalized"
 ```
 
 Linux:
 
 ```bash
-python3 scripts/normalize_evidence.py ~/reports/modbus.json ~/reports/bacnet.json --output-dir ~/reports/normalized
+python3 scripts/normalize_evidence.py ~/reports/modbus.json ~/reports/s7.json --output-dir ~/reports/normalized
 ```
 
-Run these commands from the `ot-evidence-normalizer` directory.
+The normalizer produces:
 
-The normalizer generates:
-
-| Output file | Purpose |
+| File | Purpose |
 |---|---|
-| `normalization-summary.json` | Processing statistics, input references, and warnings |
-| `attack-chain-events.json` | Structured events for Attack Chain Reconstruction |
-| `process-observations.json` | Structured observations for OT Process Analysis |
+| `normalization-summary.json` | Input information, processing counts, warnings, and limitations |
+| `attack-chain-events.json` | Structured evidence for chronological investigation |
+| `process-observations.json` | Structured observations for operational analysis |
 
 ### 4. Analyze Potential Operational Consequences
 
@@ -238,9 +251,9 @@ From the `ot-process-analysis` directory:
 python3 scripts/analyze_process.py process-observations.json --output process-report.json
 ```
 
-The input must follow the schema documented in the skill's `references/input-schema.md`.
+The input must follow the schema documented in `references/input-schema.md`.
 
-### 5. Reconstruct an Incident Timeline
+### 5. Reconstruct an Attack Timeline
 
 From the `attack-chain-reconstruction` directory:
 
@@ -248,80 +261,128 @@ From the `attack-chain-reconstruction` directory:
 python3 scripts/reconstruct_chain.py attack-chain-events.json --output timeline.json --markdown timeline.md
 ```
 
-The input must conform to the event schema documented in that skill.
+The input must follow `references/event-schema.md`.
 
-These examples illustrate individual tool execution. Any necessary file transfers and schema transformations between skills must be handled explicitly.
+**Note:** The examples demonstrate individual tools. File paths and output formats must be coordinated when combining multiple skills.
 
 ## Intended Use Cases
 
-- ICS/OT network traffic investigation
+- ICS/OT network forensics
 - Industrial protocol security analysis
-- Unauthorized PLC command investigation
-- Building automation system forensics
+- PLC command and register-write investigation
+- Building automation security
 - SCADA communication analysis
-- OT application configuration review
-- Industrial process anomaly investigation
-- IT-to-OT attack-chain reconstruction
-- Digital forensics and incident response
-- Cybersecurity research and technical training
+- OT application artifact investigation
+- Evidence normalization and correlation
+- Industrial process anomaly analysis
+- IT-to-OT incident reconstruction
+- Threat hunting and incident response
+- Cybersecurity research and training
+
+## Testing and Validation
+
+Each skill includes automated tests using Python's built-in `unittest` framework.
+
+From any skill's root directory:
+
+Windows:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+Linux/macOS:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+### Recent Updates — v0.1.1
+
+**OT Evidence Normalizer**
+
+- Improved Siemens S7 operation classification.
+- Preserved original function names, function codes, and evidence references.
+- Added mappings for controller mode changes, variable writes, and program transfers.
+- Added regression tests for S7 normalization behavior.
+
+**OT Process Analysis**
+
+- Added support for the new normalized S7 operation categories.
+- Introduced conditional risk interpretations for controller mode changes and program transfers.
+- Preserved additional S7 context in processed observations.
+- Added regression and integration tests.
+
+Validation reported for these updates:
+
+- OT Evidence Normalizer: 9 automated tests passed.
+- OT Process Analysis: 14 automated tests passed.
+- Targeted S7 normalization and process-analysis integration test passed.
+
+These tests cover defined behaviors; they do not establish comprehensive accuracy against real-world industrial incidents.
 
 ## Current Limitations
 
-The collection is experimental and has several known limitations:
+The project remains experimental.
 
-- Some network parsers analyze complete protocol messages contained within individual packets and do not perform full TCP stream reassembly.
-- Protocol decoders do not implement every function or field defined by their respective standards.
-- The evidence normalizer supports selected JSON structures rather than arbitrary vendor exports.
-- OT Process Analysis requires structured observations and does not independently determine plant-specific safe operating limits.
-- Attack Chain Reconstruction does not establish causality without supporting evidence.
-- OT Application Forensics performs static artifact triage rather than active vulnerability scanning.
-- Detection of potentially state-changing commands does not prove that those commands succeeded.
-- The collection has not yet undergone comprehensive validation against diverse real-world industrial incidents.
+- Full TCP stream reassembly is not implemented in several protocol analyzers.
+- Not all industrial protocol functions and fields are decoded.
+- The normalizer supports selected JSON formats, not arbitrary vendor exports.
+- Some mappings require additional analyst verification.
+- OT Process Analysis does not automatically determine plant-specific operating limits.
+- Attack Chain Reconstruction does not independently establish causal relationships.
+- OT Application Forensics focuses on static artifact analysis.
+- An observed industrial command does not prove successful execution.
+- Comprehensive validation against diverse real-world incidents remains pending.
 
-All results should be interpreted in their operational context and independently verified.
+Analysts should independently verify important findings against original network evidence, controller diagnostics, application logs, and operational records.
 
 ## Security and Operational Safety
 
-These skills are designed for **passive, offline forensic analysis** of authorized evidence.
+The tools are designed for **passive, offline analysis** of authorized evidence.
 
-They do not intentionally issue commands to live industrial controllers, modify industrial processes, or perform active exploitation.
+They do not intentionally interact with live PLCs, issue industrial control commands, or modify operational processes.
 
-Users should follow good forensic and OT security practices:
+Users should:
 
-- Preserve original evidence and cryptographic hashes.
-- Avoid modifying source artifacts during analysis.
-- Protect sensitive industrial configurations, network addresses, and credentials.
-- Distinguish observed events from hypotheses and inferred consequences.
-- Verify significant findings against controller, SCADA, and engineering records.
-- Obtain appropriate authorization before analyzing operational data.
+- Preserve source evidence and cryptographic hashes.
+- Maintain appropriate forensic chain-of-custody procedures.
+- Protect sensitive credentials and industrial configurations.
+- Distinguish observed events from inferred intentions and outcomes.
+- Verify operational consequences using independent evidence.
+- Obtain authorization before analyzing industrial environments.
 - Avoid relying solely on AI-generated findings for safety-critical decisions.
 
-## Project Status and Roadmap
+## Roadmap
 
-**Current status: Experimental — Version 0.1.x**
+Future development may include:
 
-The first eight skills provide foundational forensic analysis, evidence normalization, and incident reconstruction capabilities.
-
-Potential future development areas include:
-
-- Full TCP stream reassembly for supported industrial protocols.
-- Expanded protocol decoding and request/response correlation.
-- Additional adapters for SIEM logs, syslog, CSV, and OT monitoring platform exports.
+- TCP stream reassembly for industrial protocols.
+- Expanded protocol and application artifact decoding.
+- More comprehensive request/response correlation.
+- Additional adapters for SIEM, syslog, CSV, and OT monitoring platform exports.
 - Standardized evidence schemas across all skills.
-- Improved asset and process context integration.
-- Broader regression tests using authorized, sanitized industrial datasets.
-- More comprehensive Windows and Linux integration testing.
-- Optional agent orchestration for coordinated investigations.
+- Enhanced asset and process context integration.
+- Broader real-world forensic regression tests.
+- Optional AI-agent orchestration across the complete investigation workflow.
 
-These are planned areas of exploration rather than implemented capabilities.
+These are planned improvements rather than currently implemented capabilities.
 
 ## Contributing
 
-Contributions related to industrial protocol analysis, forensic techniques, technical documentation, automated testing, and secure software development are welcome.
+Contributions involving industrial protocol analysis, evidence handling, forensic techniques, documentation, testing, and secure software development are welcome.
 
-Please ensure that contributions follow responsible security research practices.
+Please follow responsible security research practices.
 
-Do not submit confidential operational captures, proprietary configuration files, credentials, or sensitive infrastructure information.
+Do not contribute private industrial captures, confidential operational configurations, credentials, or sensitive infrastructure data.
+
+## License
+
+This project is licensed under the **Apache License 2.0**.
+
+See the [LICENSE](LICENSE) file for details.
+
+Copyright 2026 Sulaiman Alhasawi.
 
 ## Maintainer
 
@@ -336,9 +397,9 @@ ICS/OT Cybersecurity Researcher
 
 This project is provided for educational, research, and authorized cybersecurity investigation purposes.
 
-The software is provided on an experimental basis without guarantees of completeness, accuracy, or suitability for operational decision-making.
+The software is experimental and provided without warranties or guarantees of accuracy, completeness, or suitability for operational decisions.
 
-Users are responsible for ensuring that their activities comply with applicable laws, organizational policies, and industrial safety requirements.
+Users are responsible for complying with applicable laws, organizational policies, and industrial safety requirements.
 
 ---
 
