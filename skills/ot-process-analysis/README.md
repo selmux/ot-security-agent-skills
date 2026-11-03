@@ -10,7 +10,7 @@ This skill helps cybersecurity researchers, OT engineers, incident responders, a
 
 OT Process Analysis evaluates structured forensic observations extracted from industrial network communications and other authorized evidence sources.
 
-The skill focuses on interpreting potentially significant industrial control activities, including setpoint changes, equipment start/stop requests, alarm-related operations, and interlock modifications.
+The skill focuses on interpreting potentially significant industrial control activities, including setpoint changes, equipment start/stop requests, alarm-related operations, interlock modifications, PLC CPU mode requests, variable writes, and program transfers.
 
 It follows an **evidence-first approach**: identifying a control command does not establish that the command was accepted, executed, or caused a physical process change.
 
@@ -23,6 +23,7 @@ The skill complements protocol-specific forensic tools rather than replacing the
 - Interpret supported PLC register and coil changes.
 - Evaluate possible consequences of equipment start/stop commands.
 - Highlight observations involving alarms and interlocks.
+- Classify S7 `controller_mode_change`, `variable_write`, and `program_transfer` observations while retaining original operation details.
 - Associate observations with potential operational consequences.
 - Preserve source evidence references provided in the input.
 - Generate structured JSON reports for further investigation.
@@ -124,7 +125,7 @@ python scripts\analyze_process.py "C:\evidence\observations.json" --output proce
 python3 scripts/analyze_process.py ~/evidence/observations.json --output process-report.json
 ```
 
-The resulting JSON report contains supported classifications and potential operational consequences.
+The resulting JSON report contains supported classifications and potential operational consequences. For normalized Siemens S7 observations, the report also preserves `original_operation`, `function_code`, `requested_mode`, and `mapping_status` when supplied. Requires OT Evidence Normalizer v0.1.1 or compatible structured input.
 
 For the exact input structure and required fields, consult [`references/input-schema.md`](references/input-schema.md).
 
@@ -139,6 +140,9 @@ OT Process Analysis focuses on the potential significance of industrial control 
 | Start/stop command | May affect equipment availability or operating sequences |
 | Alarm-related operation | May affect monitoring, notification, or operator awareness |
 | Interlock-related operation | May affect protective or process-control logic |
+| Controller mode change | PLC STOP/START request may affect execution if accepted; verify actual CPU state |
+| Variable write | May modify PLC memory; target and process role need independent confirmation |
+| Program transfer | May change program or configuration if completed and applied; a request alone does not prove modification |
 
 These are general interpretive categories, not confirmations of actual equipment behavior.
 
@@ -196,7 +200,7 @@ The included tests evaluate supported classifications and report generation. Pas
 
 - Does not directly parse PCAP or PCAPNG files.
 - Requires structured JSON observations conforming to the documented schema.
-- Does not automatically integrate with protocol-specific analysis skills.
+- Does not automatically integrate with protocol-specific analysis skills. OT Evidence Normalizer v0.1.1 can produce compatible input JSON.
 - Does not infer plant-specific operating thresholds or safe process limits.
 - Does not interpret PLC ladder logic or validate controller programs.
 - Does not independently confirm command execution.
@@ -218,9 +222,9 @@ This skill is designed for passive, offline analysis.
 
 ## Project Status
 
-**Version 0.1 — Experimental**
+**Version 0.1.1 — Experimental**
 
-The current implementation provides foundational interpretation of structured industrial control observations and identifies potential operational consequences.
+Version 0.1.1 adds support for S7 controller mode changes, variable writes, and program transfers. The tool provides conditional risk descriptions but does not verify controller responses, program activation, or physical effects.
 
 Future enhancements may include additional industrial-process categories, broader input normalization, and improved correlation with protocol-specific forensic findings.
 

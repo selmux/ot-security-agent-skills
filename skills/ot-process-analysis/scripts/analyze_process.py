@@ -7,7 +7,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 STAGES = ('command_observed','protocol_acknowledged','state_observed','physical_effect_correlated')
-OPERATIONS = ('setpoint_write','coil_write','start','stop','alarm_change','interlock_override','communications_control','read','other')
+OPERATIONS = ('setpoint_write','coil_write','start','stop','alarm_change','interlock_override','communications_control','read','other','controller_mode_change','variable_write','program_transfer')
 RISKS = {
     'setpoint_write': 'May alter a controlled variable if accepted and applied; requires engineering scaling and telemetry to assess impact.',
     'coil_write': 'May change discrete output/state if accepted and interlocks permit.',
@@ -16,6 +16,9 @@ RISKS = {
     'alarm_change': 'May change alarm visibility or response; verify configuration and events.',
     'interlock_override': 'May affect protective logic if override was applied; verify control logic and telemetry.',
     'communications_control': 'May interrupt monitoring/control communications if applied.',
+    'variable_write': 'May change PLC variable or memory contents if the write is accepted; operational significance depends on the address, program logic and process context.',
+    'program_transfer': 'May affect PLC program or configuration if a transfer is completed and applied; an observed download request or block transfer alone does not prove a program change.',
+    'controller_mode_change': 'May affect PLC controller operating mode if the request is accepted; actual controller state and process consequences require independent verification.',
 }
 
 class InputError(ValueError):
@@ -44,6 +47,22 @@ def analyze(document):
         warnings=[]
         if r['operation'] in ('setpoint_write','coil_write') and 'value' not in r:
             warnings.append('No value supplied; cannot determine requested magnitude/state')
+        if r['operation']=='controller_mode_change':
+            mode = r.get('requested_mode')
+            if mode is None or not isinstance(mode, str) or not mode.strip():
+                warnings.append('Requested controller mode is unknown; do not infer STOP or RUN from the operation category')
+            else:
+                mode = mode.strip().upper()
+                if mode == 'STOP':
+                    warnings.append('PLC STOP request may suspend cyclic program execution if accepted; verify controller state and fail-safe behavior')
+                elif mode in ('RUN', 'START'):
+                    warnings.append('PLC start/run request may resume program execution if accepted; verify controller state')
+                else:
+                    warnings.append('Controller mode is not a recognized STOP/RUN label; preserve and verify original request semantics')
+        if r['operation']=='variable_write' and 'value' not in r:
+            warnings.append('Variable value is not supplied; cannot assess requested modification')
+        if r['operation']=='program_transfer':
+            warnings.append('Observed program-transfer activity does not establish download completion, activation, or changes to running PLC logic')
         if r['operation']=='setpoint_write' and not r.get('unit'):
             warnings.append('Units/scaling not established; do not interpret raw value as engineering quantity')
         if r['evidence_stage']=='command_observed':
@@ -51,9 +70,20 @@ def analyze(document):
         if r['evidence_stage']=='protocol_acknowledged':
             warnings.append('Protocol acknowledgement alone does not prove physical effect')
         finding={k:r[k] for k in ('id','source','asset','target','operation','evidence_stage')}
-        for key in ('time_utc','protocol','actor','value','unit','note'):
+        for key in ('time_utc','protocol','actor','value','unit','note',
+                    'original_operation','function_code','requested_mode','mapping_status'):
             if key in r: finding[key]=r[key]
-        finding['potential_risk']=RISKS.get(r['operation'])
+        risk = RISKS.get(r['operation'])
+        if r['operation']=='controller_mode_change':
+            requested = r.get('requested_mode')
+            if isinstance(requested, str):
+                if requested.strip().upper() == 'STOP':
+                    risk = ('PLC STOP may interrupt cyclic program execution if accepted; '
+                            'whether outputs, actuators, and the process are affected depends on controller and plant configuration.')
+                elif requested.strip().upper() in ('RUN','START'):
+                    risk = ('PLC start/run may resume program execution if accepted; '
+                            'verify the controller response, actual mode, and operational conditions.')
+        finding['potential_risk']=risk
         finding['limitations']=warnings
         findings.append(finding)
         by_asset[r['asset']].append(r['id'])
