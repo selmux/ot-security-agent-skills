@@ -16,6 +16,26 @@ These sources may use different formats, naming conventions, timestamp represent
 
 It follows an **evidence-first approach**: the tool preserves source references, records transformation warnings, and does not invent missing evidence or assume malicious activity.
 
+## Siemens S7 Mapping Fix (v0.1.1)
+
+S7 state-changing requests now retain their specific operation semantics:
+
+| S7 function | Normalized operation |
+|---|---|
+| PLC Stop | `controller_mode_change` (requested mode: `STOP`) |
+| Write Var | `variable_write` |
+| Request Download / Download Block / Download Ended | `program_transfer` |
+| Unresolved S7 state-changing request | `other` (original function preserved) |
+
+The original function name/code, timestamp and packet references are preserved.
+The tool does **not** infer that a PLC entered STOP mode, accepted a write, or
+completed a download. `PLC Control (0x28)` is not assumed to mean START.
+
+**Compatibility notice:** The existing `ot-process-analysis` v0.1 tool
+rejects these new operation categories. Upgrade that downstream skill's
+operation taxonomy and risk descriptions before processing S7 observations
+from this version. Attack-chain event output remains compatible.
+
 ## Features
 
 - Normalize supported industrial protocol forensic reports.
@@ -29,7 +49,7 @@ It follows an **evidence-first approach**: the tool preserves source references,
 
 ## Supported Inputs
 
-Version 0.1.0 supports selected JSON structures from:
+Version 0.1.1 supports selected JSON structures from:
 
 | Evidence source | Input type |
 |---|---|
@@ -210,7 +230,7 @@ This skill is designed for passive, offline forensic processing.
 
 ## Project Status
 
-**Version 0.1.0 — Experimental**
+**Version 0.1.1 — Experimental**
 
 The initial implementation supports selected JSON forensic report mappings and generation of compatible outputs for OT Process Analysis and Attack Chain Reconstruction.
 
