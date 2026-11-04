@@ -376,6 +376,16 @@ Please follow responsible security research practices.
 
 Do not contribute private industrial captures, confidential operational configurations, credentials, or sensitive infrastructure data.
 
+## Acknowledgments
+
+Special thanks to **Mark Hyman** for reviewing the OT Security Agent Skills project and identifying an important issue in the Siemens S7 evidence normalization workflow.
+
+His feedback highlighted the loss of operation-specific information when PLC STOP and program-download commands were normalized into generic events.
+
+This contribution helped improve **OT Evidence Normalizer v0.1.1** and **OT Process Analysis v0.1.1**, strengthening the preservation of forensic evidence and operational context.
+
+Community feedback like this is invaluable in improving the accuracy and reliability of open-source OT cybersecurity tools.
+
 ## License
 
 This project is licensed under the **Apache License 2.0**.
