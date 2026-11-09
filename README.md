@@ -402,6 +402,7 @@ ICS/OT Cybersecurity Researcher
 
 - GitHub: https://github.com/selmux
 - Website: https://zerontek.com
+- OT/ICS Cybersecurity Training: https://zerontek.com/zt/training-2
 
 ## Disclaimer
 
